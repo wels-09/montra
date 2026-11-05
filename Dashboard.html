@@ -8,49 +8,63 @@
 <body>
  <div class="dashboard">
   
-  <aside class="sidebar">
-    <!-- <div class="sidebar-brand">
-      <button class="profile-button" type="button" data-view="users" aria-label="Open profile">
-        <img src="profile.jfif" alt="">
-      </button>
-    </div> -->
+ <aside class="sidebar" id="sidebar">
 
-    <div class="sidebar-brand">
-        <button class="profile-button" type="button"
-                data-view="users" aria-label="Open profile">
-            <img src="profile.jfif" alt="Profile icon">
+    <!-- Montra Logo -->
+   <div class="sidebar-brand">
+    <a href="index.html" class="brand-logo"   id="brandLogo">
+        <img src="montra.png" alt="Montra logo">
+        <h2>MONTRA</h2>
+    </a>
+</div>
+
+    <!-- User Profile -->
+    <div class="sidebar-profile">
+        <button class="profile-button"
+                type="button"
+                data-view="users"
+                aria-label="Open profile">
+            <img src="profile.jfif"
+                 alt="Your profile picture"
+                 id="sidebarProfilePicture">
         </button>
 
         <p id="sidebarUserName" class="sidebar-user-name"></p>
     </div>
 
-
-    <nav class="sidebar-menu">
-      <ul>
-      
-        <li><a href="#dashboard" class="active" data-view="dashboard">Dashboard</a></li>
-        <li><a href="#analytics" data-view="analytics">Analytics</a></li>
-        <li class="historyT"><a href="#history" data-view="history">History</a></li>
-        <!-- <li><a href="#aprofilesettings" data-view="profilesettings">Profile settings / Account Settings </a></li> -->
-        <!-- <li><a href="#settings" data-view="settings">Settings</a></li> -->
-        <!-- <li><a href="#users" data-view="users">Users</a></li> -->
-        <!-- <li><a href="#settings" data-view="settings">Settings</a></li> -->
-
-      
-        <li><a href="#" id="logoutBtn">Log-Out</a></li>  
-      </ul>
-  
+       <nav class="sidebar-menu">
+        <ul>
+            <li><a href="#dashboard" class="active" data-view="dashboard">Dashboard</a></li>
+            <li><a href="#analytics" data-view="analytics">Analytics</a></li>
+            <li><a href="#history" data-view="history">History</a></li>
+        </ul>
     </nav>
+     <div class="sidebar-bottom">
+        <a href="#" id="logoutBtn">Log-Out</a>
+    </div>
+</aside>
+
+<!-- Move overlay outside the sidebar -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   </aside>
   
   <main class="main-content">
-    <header class="top-bar">
-        <div> 
+      <header class="top-bar">
+      <div class="header-text">
           <h2 id="pageTitle">Finance Dashboard</h2>
           <p id="dashboardSubtitle">Track your monthly activities</p>
-        </div>
+      </div>
 
-    </header>
+      <button
+          type="button"
+          class="burger-menu"
+          id="burgerMenu"
+          aria-label="Open navigation menu"
+          aria-controls="sidebar"
+          aria-expanded="false"
+      >☰</button>
+  </header>
 
     <section class="view-panel" id="dashboardView" data-title="Finance Dashboard" data-subtitle="Track your monthly activities">
       <section class="summary-grid" aria-label="Account totals">
@@ -112,7 +126,7 @@
       </section>
     </section>
 
-    <section class="view-panel section-view" id="analyticsView" data-title="Income and spending analytics" data-subtitle="See how income and expenses are distributed by category" hidden>
+    <section class="view-panel section-view" id="analyticsView" data-title="Transaction analytics" data-subtitle="See how income and expenses are distributed" hidden>
       <section class="content-body">
         <h2>Income and spending by category</h2>
         <p class="history-total" id="analyticsTotals">Total spent: $0.00 · Total income: $0.00</p>
@@ -130,7 +144,34 @@
 
     <section class="view-panel section-view" id="usersView" data-title="Profile" data-subtitle="Manage your personal information" hidden>
       <section class="content-body">
-        <h2>Your information</h2>
+                  <h2>Your information</h2>
+                  <div class="profile-picture-editor">
+                      <img
+                          src="profile.jfif"
+                          alt="Profile picture preview"
+                          id="profilePicturePreview"
+                      >
+
+                      <form id="profilePictureForm">
+                          <label for="profilePictureInput">
+                              Choose a profile picture
+                          </label>
+
+                          <input
+                              type="file"
+                              id="profilePictureInput"
+                              accept="image/*"
+                              required
+                          >
+
+                          <button type="submit">Save profile picture</button>
+
+                          <p id="profilePictureStatus"
+                            role="status"
+                            aria-live="polite"></p>
+                      </form>
+                  </div>
+
         <form id="userInfoForm" class="user-info-form">
           <label for="userName">Full name</label>
           <input id="userName" name="name" type="text" autocomplete="name" required>
@@ -152,7 +193,7 @@
       </section>
     </section>
 
-    <!-- <section class="view-panel section-view" id="settingsView" data-title="Settings" data-subtitle="Manage your account preferences" hidden>
+    <section class="view-panel section-view" id="settingsView" data-title="Settings" data-subtitle="Manage your account preferences" hidden>
       <section class="content-body">
         <h2>Preferences</h2>
         <form id="settingsForm" class="settings-form">
@@ -174,7 +215,7 @@
           <p id="settingsStatus" class="settings-status" role="status" aria-live="polite"></p>
         </form>
       </section>
-    </section> -->
+    </section>
 
   </main>
 </div>

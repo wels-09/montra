@@ -68,13 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            localStorage.setItem(
+          localStorage.setItem(
                 "montraCurrentUser",
-                JSON.stringify({
-                    email: existingUser.email,
-                    fullName: existingUser.fullName || existingUser.name,
-                    id: existingUser.id
-                })
+                JSON.stringify(existingUser)
             );
 
         } catch (error) {

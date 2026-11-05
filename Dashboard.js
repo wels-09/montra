@@ -11,11 +11,144 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    const sidebarUserName = document.getElementById("sidebarUserName");
+  
 
-    if (sidebarUserName) {
-        sidebarUserName.textContent = currentUser.fullName || "User";
+    // Handle profile picture upload and saving
+ 
+const sidebarUserName =
+    document.getElementById("sidebarUserName");
+
+const sidebarProfilePicture =
+    document.getElementById("sidebarProfilePicture");
+
+const profilePicturePreview =
+    document.getElementById("profilePicturePreview");
+
+const profilePictureForm =
+    document.getElementById("profilePictureForm");
+
+const profilePictureInput =
+    document.getElementById("profilePictureInput");
+
+const profilePictureStatus =
+    document.getElementById("profilePictureStatus");
+
+const defaultPicture = "profile.jfif";
+
+// Display the user's name.
+if (sidebarUserName) {
+    sidebarUserName.textContent =
+        currentUser.fullName || "User";
+}
+
+// Display the profile picture.
+function displayProfilePicture(picture) {
+    const image = picture || defaultPicture;
+
+    if (sidebarProfilePicture) {
+        sidebarProfilePicture.src = image;
     }
+
+    if (profilePicturePreview) {
+        profilePicturePreview.src = image;
+    }
+}
+
+// Load the saved profile picture.
+displayProfilePicture(currentUser.profilePicture);
+
+// Save a new profile picture.
+if (profilePictureForm) {
+    profilePictureForm.addEventListener("submit", event => {
+        event.preventDefault();
+
+        const file = profilePictureInput.files[0];
+
+        if (!file) {
+            profilePictureStatus.textContent =
+                "Please choose an image.";
+            return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+            profilePictureStatus.textContent =
+                "Please select a valid image.";
+            return;
+        }
+
+        if (file.size > 1024 * 1024) {
+            profilePictureStatus.textContent =
+                "Please choose an image smaller than 1 MB.";
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            const picture = reader.result;
+
+            try {
+                const users = JSON.parse(
+                    localStorage.getItem("montraUsers") || "[]"
+                );
+
+                if (!Array.isArray(users)) {
+                    throw new Error("Invalid users data.");
+                }
+
+                const userIndex = users.findIndex(user =>
+                    user && (
+                        String(user.id) === String(currentUser.id) ||
+                        String(user.email).toLowerCase() ===
+                        currentUser.email.toLowerCase()
+                    )
+                );
+
+                if (userIndex === -1) {
+                    profilePictureStatus.textContent =
+                        "Could not find your account.";
+                    return;
+                }
+
+                // Update the account in montraUsers.
+                users[userIndex].profilePicture = picture;
+
+                localStorage.setItem(
+                    "montraUsers",
+                    JSON.stringify(users)
+                );
+
+                // Update the current login session.
+                currentUser.profilePicture = picture;
+
+                localStorage.setItem(
+                    "montraCurrentUser",
+                    JSON.stringify(currentUser)
+                );
+
+                // Refresh both displayed pictures.
+                displayProfilePicture(picture);
+
+                profilePictureStatus.textContent =
+                    "Profile picture updated successfully!";
+
+                profilePictureInput.value = "";
+
+            } catch (error) {
+                profilePictureStatus.textContent =
+                    "Unable to save the picture. Try a smaller image.";
+            }
+        };
+
+        reader.onerror = () => {
+            profilePictureStatus.textContent =
+                "Could not read the selected image.";
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
 
     const logoutBtn = document.getElementById("logoutBtn") 
 
@@ -35,6 +168,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
             window.location.href = "login.html";
         })
+    }
+
+    // Logout when the user clicks the Montra logo.
+    const brandLogo = document.getElementById("brandLogo");
+
+    if (brandLogo) {
+        brandLogo.addEventListener("click", event => {
+            event.preventDefault();
+
+            const confirmLogout = confirm(
+                "Are you sure you want to leave Montra and log out?"
+            );
+
+            if (!confirmLogout) {
+                return;
+            }
+
+            // Remove the current login session.
+            localStorage.removeItem("montraCurrentUser");
+
+            // Redirect to the homepage.
+            window.location.href = "index.html";
+        });
     }
 
     alert(`Welcome back, ${currentUser.fullName || "User"}!`);
@@ -453,49 +609,92 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+    
+   // Hamburger menu functionality
+const burgerMenu = document.getElementById("burgerMenu");
+const sidebar = document.getElementById("sidebar");
+const sidebarOverlay = document.getElementById("sidebarOverlay");
 
+if (burgerMenu && sidebar && sidebarOverlay) {
 
-    function loadUserInfo() {
-        if (!userInfoForm) return;
+    function closeSidebar() {
+        sidebar.classList.remove("open");
+        sidebarOverlay.classList.remove("active");
 
-        try {
-            const users = JSON.parse(
-                localStorage.getItem("montraUsers") || "[]"
-            );
+        burgerMenu.textContent = "☰";
+        burgerMenu.setAttribute("aria-expanded", "false");
+        burgerMenu.setAttribute(
+            "aria-label",
+            "Open navigation menu"
+        );
+    }
 
-            if (!Array.isArray(users)) return;
+    burgerMenu.addEventListener("click", () => {
+        const isOpen = sidebar.classList.toggle("open");
 
-            const savedUser = users.find(user =>
-                user &&
-                (String(user.id) === userId ||
-                 String(user.email).toLowerCase() === userEmail)
-            );
+        sidebarOverlay.classList.toggle("active", isOpen);
 
-            const profile = {
-                ...savedUser,
-                ...currentUser
-            };
+        burgerMenu.textContent = isOpen ? "✕" : "☰";
+        burgerMenu.setAttribute(
+            "aria-expanded",
+            String(isOpen)
+        );
 
-            Object.entries(profile).forEach(([name, value]) => {
-                const field =
-                    userInfoForm.elements.namedItem(name);
+        burgerMenu.setAttribute(
+            "aria-label",
+            isOpen ? "Close navigation menu" : "Open navigation menu"
+        );
+    });
 
-                if (
-                    field &&
-                    value !== undefined &&
-                    value !== null &&
-                    typeof value !== "object"
-                ) {
-                    field.value = value;
-                }
-            });
-        } catch {
-            if (userInfoStatus) {
-                userInfoStatus.textContent =
-                    "Unable to load your saved profile.";
-            }
+    sidebarOverlay.addEventListener("click", closeSidebar);
+
+    links.forEach(link => {
+        link.addEventListener("click", closeSidebar);
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeSidebar();
+        }
+    });
+}
+
+function loadUserInfo() {
+    if (!userInfoForm) return;
+
+    try {
+        const users = JSON.parse(
+            localStorage.getItem("montraUsers") || "[]"
+        );
+
+        if (!Array.isArray(users)) return;
+
+        const savedUser = users.find(user =>
+            user &&
+            String(user.id) === userId
+        );
+
+        if (!savedUser) return;
+
+        userInfoForm.elements.namedItem("name").value =
+            savedUser.fullName || "";
+
+        userInfoForm.elements.namedItem("email").value =
+            savedUser.email || "";
+
+        userInfoForm.elements.namedItem("phone").value =
+            savedUser.phone || "";
+
+        userInfoForm.elements.namedItem("address").value =
+            savedUser.address || "";
+
+    } catch {
+        if (userInfoStatus) {
+            userInfoStatus.textContent =
+                "Unable to load your saved profile.";
         }
     }
+}
 
 
     if (userInfoForm) {
@@ -530,11 +729,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     ...users[index]
                 };
 
-                Object.entries(formValues).forEach(([key, value]) => {
-                    if (key in updatedUser) {
-                        updatedUser[key] = String(value).trim();
-                    }
-                });
+                updatedUser.fullName = String(formValues.name).trim();
+                updatedUser.phone = String(formValues.phone || "").trim();
+                updatedUser.address = String(formValues.address || "").trim();
 
                 // Do not allow the profile form to change account identity.
                 updatedUser.id = users[index].id;
@@ -559,6 +756,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 currentUser.fullName = updatedUser.fullName;
                 currentUser.email = updatedUser.email;
+
+                if (sidebarUserName) {
+                    sidebarUserName.textContent =
+                        currentUser.fullName || "User";
+                }
 
                 localStorage.setItem(
                     "montraCurrentUser",
